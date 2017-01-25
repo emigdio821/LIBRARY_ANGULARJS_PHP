@@ -11,6 +11,7 @@ $book->id = $data->id;
 
 //set book property values
 $book->borrowed = $data->borrowed;
+$book->user = $data->user;
 
 // update the book
 if ($book->borrowBook()) {

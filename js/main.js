@@ -149,6 +149,7 @@ app.controller('booksCtrl', function($scope, $http) {
     // borrow modal
 
     $scope.openBorrowModal = function(id, name) {
+        Materialize.updateTextFields();
         $http.post('php_actions/read_details.php', {
             'id': id
         }).then(function successCallback(response) {
