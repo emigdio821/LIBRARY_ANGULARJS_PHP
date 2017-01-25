@@ -2,7 +2,7 @@
     <div class="col s12">
         <h3>Books</h3>
         <!-- Filter -->
-        <input type="text" ng-model="search" class="form-control col s3" placeholder="Search books..." />
+        <input type="text" ng-model="search" class="form-control col s6" placeholder="Search books..." />
     </div>
     <div ng-init="getAll()">
         <div class="col s12" ng-repeat="d in books | filter:search">
@@ -17,47 +17,93 @@
                     </div>
                     <div class="card-action">
                         <a style="cursor: pointer" ng-click="readOne(d.id)">Edit</a>
-                        <a style="cursor: pointer">Borrow</a>
+                        <a style="cursor: pointer" ng-click="openBorrowModal(d.id, d.name)">Borrow</a>
                         <a style="cursor: pointer" ng-click="deleteBook(d.id)">Delete</a>
+                        <div class="chip">
+                            {{d.category}}
+                        </div>
+                        <div id="chip-borrowed" class="chip" ng-class="{ 'green lighten-4' : d.borrowed=='Available', 'red lighten-4' : d.borrowed=='Unavailable' }">
+                            {{d.borrowed}}
+                        </div>
+                        <div class="chip" ng-if="d.borrowed=='Unavailable'">
+                            Borrowed by: {{d.user}}
+                        </div>
+                        <div class="chip">
+                            Created: {{d.created}}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="modal-book-form" class="modal">
-            <div class="modal-content">
-                <h4 id="modal-book-title">Create Book</h4>
-                <div class="row">
-                    <div class="input-field col s12">
-                        <i class="material-icons prefix">account_circle</i>
-                        <input placeholder="Book name" ng-model="name" type="text" class="validate" id="form-name" />
-                        <label for="name">Name</label>
-                    </div>
-
-                    <div class="input-field col s12">
-                        <i class="material-icons prefix">face</i>
-                        <input placeholder="Author name" ng-model="author" type="text" class="validate" id="form-author" />
-                        <label for="author">Author</label>
-                    </div>
-
-                    <div class="input-field col s12">
-                        <i class="material-icons prefix">style</i>
-                        <input placeholder="Category name" ng-model="category" type="text" class="validate" id="form-category" />
-                        <label for="category">Category</label>
-                    </div>
-
-                    <div class="input-field col s12">
-                        <i class="material-icons prefix">format_quote</i>
-                        <textarea placeholder="Some description" ng-model="description" type="text" class="validate materialize-textarea"></textarea>
-                        <label for="description">Description</label>
+        <form name="borrowForm" novalidate>
+            <div id="modal-borrow-form" class="modal">
+                <div class="modal-content">
+                    <h4 id="modal-borrow-title">Borrow Book</h4>
+                    <div class="row">
+                        <div class="switch">
+                            <label>
+                      Make it available
+                      <input name="borrow_switch" type="checkbox" ng-model="checked">
+                      <span class="lever"></span>
+                      Lend this book
+                    </label>
+                        </div>
                     </div>
                 </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">face</i>
+                    <input name="borrow_user" ng-disabled="!checked" placeholder="User name" ng-model="borrow_user" type="text" id="form-borrow_user" ng-class="{ 'invalid' : borrowForm.borrow_user.$invalid && !borrowForm.borrow_user.$pristine, 'valid' : borrowForm.borrow_user.$valid }" required/>
+                    <label for="borrow_user" data-error="required">User</label>
+                </div>
+                <div class="modal-footer">
+                    <a id="btn-borrow-book" class="waves-effect waves-light btn-flat" ng-click="borrowBook(checked, borrowForm.$invalid)">Update</a>
+                    <a class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                </div>
             </div>
-            <div class="modal-footer">
-                <a id="btn-create-book" class="waves-effect waves-light btn-flat" ng-click="createBook()">Create</a>
-                <a id="btn-update-book" class="waves-effect waves-light btn-flat" ng-click="updateBook()">Update</a>
-                <a class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+        </form>
+        <form name="booksForm" novalidate>
+            <div id="modal-book-form" class="modal">
+                <div class="modal-content">
+                    <h4 id="modal-book-title">Create Book</h4>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">account_circle</i>
+                            <input name="name" placeholder="Book name" ng-model="name" type="text" ng-class="{ 'invalid' : booksForm.name.$invalid && !booksForm.name.$pristine, 'valid' : booksForm.name.$valid }" data-error="required" id="form-name" required/>
+                            <label for="name" data-error="required">Name</label>
+                        </div>
+
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">face</i>
+                            <input name="author" placeholder="Author name" ng-model="author" type="text" id="form-author" ng-class="{ 'invalid' : booksForm.author.$invalid && !booksForm.author.$pristine, 'valid' : booksForm.author.$valid }" required/>
+                            <label for="author" data-error="required">Author</label>
+                        </div>
+
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">style</i>
+                            <input name="category" placeholder="Category name" ng-model="category" type="text" id="form-category" ng-class="{ 'invalid' : booksForm.category.$invalid && !booksForm.category.$pristine, 'valid' : booksForm.category.$valid }" required/>
+                            <label for="category" data-error="required">Category</label>
+                        </div>
+
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">public</i>
+                            <input name="url" placeholder="Image URL" ng-model="image" type="text" id="form-image" />
+                            <label for="image">Image URL (optional)</label>
+                        </div>
+
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">format_quote</i>
+                            <textarea id="description" name="description" placeholder="Some description" ng-model="description" type="text" class="materialize-textarea" length="400" ng-class="{ 'invalid' : booksForm.description.$invalid && !booksForm.description.$pristine, 'valid' : booksForm.description.$valid }" required></textarea>
+                            <label for="description" data-error="required">Description</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a id="btn-create-book" class="waves-effect waves-light btn-flat" ng-disabled="booksForm.$invalid" ng-click="createBook()">Create</a>
+                    <a id="btn-update-book" class="waves-effect waves-light btn-flat" ng-disabled="booksForm.$invalid" ng-click="updateBook()">Update</a>
+                    <a class="modal-action modal-close waves-effect waves-light btn-flat">Cancel</a>
+                </div>
             </div>
-        </div>
+        </form>
         <!-- floating button -->
         <div class="fixed-action-btn">
             <a class="waves-effect waves-light btn modal-trigger btn-floating btn-large tooltipped" data-position="left" data-delay="50" data-tooltip="Add new book" ng-click="showCreateForm()"><i class="large material-icons">add</i></a>

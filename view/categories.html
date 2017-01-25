@@ -1,0 +1,36 @@
+<div class="row">
+    <div class="col s12">
+        <h3>Categories</h3>
+        <!-- Filter -->
+        <input type="text" ng-model="search" class="form-control col s6" placeholder="Search categories..." />
+    </div>
+    <div ng-init="getCategories()">
+        <div class="col s12" ng-repeat="d in categories | filter:search">
+            <h5>{{ d.name }}</h5>
+            <div class="card horizontal">
+                <div class="card-image">
+                    <img height="120" width="40" src="{{ d.img }}">
+                </div>
+                <div class="card-stacked">
+                    <div class="card-content">
+                        <p>{{ d.description }}</p>
+                    </div>
+                    <div class="card-action">
+                        <div class="chip">
+                            {{d.category}}
+                        </div>
+                        <div id="chip-borrowed" class="chip" ng-class="{ 'green lighten-4' : d.borrowed=='Available', 'red lighten-4' : d.borrowed=='Unavailable' }">
+                            {{d.borrowed}}
+                        </div>
+                        <div class="chip" ng-if="d.borrowed=='Unavailable'">
+                            Borrowed by: {{d.user}}
+                        </div>
+                        <div class="chip">
+                            Created: {{d.created}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

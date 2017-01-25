@@ -32,7 +32,7 @@
                     <ul id="mobile-demo" class="left">
                         <li id="nav_home"><a href="#">Home</a></li>
                         <li id="nav_books"><a href="#!books">Books</a></li>
-                        <li id="nav_categories"><a href="#">Categories</a></li>
+                        <li id="nav_categories"><a href="#!categories">Categories</a></li>
                     </ul>
                 </div>
             </nav>

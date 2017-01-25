@@ -13,6 +13,8 @@ class BookInterface
     public $created;
     public $modified;
     public $img;
+    public $borrowed;
+    public $user;
     
     public function __construct($db)
     {
@@ -25,7 +27,7 @@ class BookInterface
         $query = "INSERT INTO   
                 " . $this->table_name . "   
             SET   
-                name=:name, author=:author, description=:description, category=:category, created=:created, img=:img";
+                name=:name, author=:author, description=:description, category=:category, created=:created, img=:img, borrowed=:borrowed";
         $stmt  = $this->conn->prepare($query);
         
         $this->name        = htmlspecialchars(strip_tags($this->name));
@@ -33,6 +35,7 @@ class BookInterface
         $this->description = htmlspecialchars(strip_tags($this->description));
         $this->category    = htmlspecialchars(strip_tags($this->category));
         $this->created     = htmlspecialchars(strip_tags($this->created));
+        $this->borrowed    = htmlspecialchars(strip_tags($this->borrowed));
         $this->img         = htmlspecialchars(strip_tags($this->img));
         
         $stmt->bindParam(":name", $this->name);
@@ -40,6 +43,7 @@ class BookInterface
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":category", $this->category);
         $stmt->bindParam(":created", $this->created);
+        $stmt->bindParam(":borrowed", $this->borrowed);
         $stmt->bindParam(":img", $this->img);
         
         if ($stmt->execute()) {
@@ -53,7 +57,7 @@ class BookInterface
     function readAll()
     {
         $query = "SELECT   
-                id, name, description, author, category, created, img 
+                id, name, description, author, category, created, img, borrowed, user 
             FROM   
                 " . $this->table_name . "   
             ORDER BY   
@@ -69,7 +73,7 @@ class BookInterface
     function readBookDetails()
     {
         $query = "SELECT   
-                id, name, description, author, category, created, img 
+                id, name, description, author, category, created, img, borrowed, user 
             FROM   
                 " . $this->table_name . "   
             WHERE   
@@ -92,19 +96,23 @@ class BookInterface
         $this->category    = $row['category'];
         $this->created     = $row['created'];
         $this->img         = $row['img'];
+        $this->borrowed    = $row['borrowed'];
+        $this->user        = $row['user'];
     }
     
     // update the book
     function update()
     {
         $query = "UPDATE   
-                " . $this->table_name . "  
+                " . $this->table_name . "   
             SET   
                 name = :name,   
                 description = :description,   
-                author = :author,  
-                category = :category
-            WHERE  
+                author = :author, 
+                created = :created,   
+                category = :category, 
+                img = :img 
+            WHERE   
                 id = :id";
         
         // prepare query statement
@@ -117,6 +125,7 @@ class BookInterface
         $this->category    = htmlspecialchars(strip_tags($this->category));
         $this->created     = htmlspecialchars(strip_tags($this->created));
         $this->img         = htmlspecialchars(strip_tags($this->img));
+        $this->id          = htmlspecialchars(strip_tags($this->id));
         
         // bind new values
         $stmt->bindParam(':name', $this->name);
@@ -147,5 +156,52 @@ class BookInterface
         } else {
             return false;
         }
+    }
+    
+    // borrow the book
+    function borrowBook()
+    {
+        $query = "UPDATE   
+                " . $this->table_name . "   
+            SET   
+                borrowed = :borrowed, 
+                user = :user 
+            WHERE   
+                id = :id";
+        
+        // prepare query statement
+        $stmt = $this->conn->prepare($query);
+        
+        // posted values
+        $this->borrowed = htmlspecialchars(strip_tags($this->borrowed));
+        $this->user     = htmlspecialchars(strip_tags($this->user));
+        $this->id       = htmlspecialchars(strip_tags($this->id));
+        
+        // bind new values
+        $stmt->bindParam(':borrowed', $this->borrowed);
+        $stmt->bindParam(':user', $this->user);
+        $stmt->bindParam(':id', $this->id);
+        // execute the query
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    // get categories
+    function getCategories()
+    {
+        $query = "SELECT   
+                id, name, description, author, category, created, img, borrowed, user 
+            FROM   
+                " . $this->table_name . "   
+            ORDER BY   
+                category DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        
+        return $stmt;
     }
 }
